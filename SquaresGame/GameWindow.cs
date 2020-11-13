@@ -34,23 +34,14 @@ namespace SquaresGame
         }
 
         //=========== Methods ===========//
-        void DrawGameField(PaintEventArgs e, int N, float dotRadius)
+        void DrawGameField(PaintEventArgs e)
         {
-            //Draw Points
-            for (int x = 1; x <= N; ++x)
+            //Draw Dots
+            foreach (var dot in dots)
             {
-                for (int y = 1; y <= N; ++y)
-                {
-                    float xCenter = x * ((float)canvas.Width / (N + 1));
-                    float yCenter = y * ((float)canvas.Height / (N + 1));
-
-                    float xCoord = xCenter - dotRadius;
-                    float yCoord = yCenter - dotRadius;
-
-                    dots[y - 1, x - 1] = new Dot { row = y - 1, col = x - 1, xCoord = xCenter, yCoord = yCenter };
-                    e.Graphics.FillEllipse(Brushes.Red, xCoord, yCoord, 2 * dotRadius, 2 * dotRadius);
-                    e.Graphics.FillRectangle(Brushes.Blue, xCenter, yCenter, 2, 2);
-                }
+                float xCoord = dot.xCoord - dotRadius;
+                float yCoord = dot.yCoord - dotRadius;
+                e.Graphics.FillEllipse(Brushes.Red, xCoord, yCoord, 2 * dotRadius, 2 * dotRadius);
             }
 
             //Draw Rectangles from model
@@ -70,6 +61,20 @@ namespace SquaresGame
             {
                 Pen p = new Pen(line.Item3.PlayerColor,lineWidth);
                 e.Graphics.DrawLine(p, (PointF)dots[line.Item1.X, line.Item1.Y], (PointF)dots[line.Item2.X, line.Item2.Y]);
+            }
+        }
+        
+        void InitDots(int N)
+        {
+            dots = new Dot[N,N];
+            for (int x = 1; x <= N; ++x)
+            {
+                for (int y = 1; y <= N; ++y)
+                {
+                    float xCenter = x * ((float)canvas.Width / (N + 1));
+                    float yCenter = y * ((float)canvas.Height / (N + 1));
+                    dots[y - 1, x - 1] = new Dot { row = y - 1, col = x - 1, xCoord = xCenter, yCoord = yCenter };
+                }
             }
         }
 
@@ -92,12 +97,12 @@ namespace SquaresGame
         private void newGameBtn_Click(object sender, EventArgs e)
         {
             //Setup Model and events
-            model = new SquareGameModel(3, //FieldSize
+            model = new SquareGameModel(5, //FieldSize
                                         new Player("Sanyi",Color.Black), // PlayerOne
                                         new Player("Balázs",Color.Blue)); // PlayerTwo
 
             //Subscriptions
-            model.UpdateUI += (sender2,e2) => canvas.Invalidate();
+            model.UpdateUI  += UpdateUI;
             model.PlayerWon += PlayerWon;
 
             //Setup UI and refresh
@@ -105,11 +110,19 @@ namespace SquaresGame
             p2NameLabel.Text = model.PlayerTwo.PlayerName;
             saveGameBtn.Enabled = true;
 
-            dots = new Dot[model.FieldSize, model.FieldSize];
+            InitDots(model.FieldSize);
             canvas.Invalidate();
         }
 
         //===== Model events =====//
+
+        private void UpdateUI(object sender, EventArgs e)
+        {
+            canvas.Invalidate();
+            p1PointLabel.Text = model.PlayerOne.Points.ToString();
+            p2PointLabel.Text = model.PlayerTwo.Points.ToString();
+        }
+
         private void PlayerWon(object sender, Player p)
         {
             String message;
@@ -127,7 +140,7 @@ namespace SquaresGame
             base.OnPaint(e);
             if(model != null)
             {
-                DrawGameField(e, model.FieldSize, dotRadius);
+                DrawGameField(e);
             }
         }
 
