@@ -134,12 +134,13 @@ namespace SquaresGame
             int dRow = Math.Abs(line.Item2.X - line.Item1.X);
             int dCol = Math.Abs(line.Item2.Y - line.Item1.Y);
 
+            // Flip Difference vector
             Point diffV = new Point(dCol, dRow);
 
             //Check existence of parallel lines and side lines in two directions
             for (int i = 0; i < 2; ++i)
             {
-                // Flip Difference vector
+                //Change vector direction
                 diffV.X *= (-1);
                 diffV.Y *= (-1);
 
