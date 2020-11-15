@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SquaresGame
-{ 
+{
     public class Player
     {
         public String PlayerName  { get; private set; }
@@ -21,14 +19,20 @@ namespace SquaresGame
         }
     }
 
-    public class SquareGameModel
-    {
-        //=========== Fields ===========//
-        private readonly List<Tuple<Point, Point, Player>> lines;
-        private readonly List<Tuple<Point, Point, Player>> rectangles;
-        private int rectCount;
-        private readonly int linesToEnd;
+    public class SquareGameModel { 
 
+        #region Fields
+        //============= Fields =============//
+        private readonly List<Tuple<Point, Point, Player>> lines;
+        private readonly int linesToEnd;
+        private readonly List<Tuple<Point, Point, Player>> rectangles;
+        private int registeredRectCount;
+
+        // DataAccess
+        private readonly ISquaresGameDataAccess dataAccess;
+        #endregion
+
+        #region Properties
         //=========== Properties ===========//
         public int FieldSize { get; private set; }
         public Player PlayerOne { get; private set; }
@@ -38,38 +42,49 @@ namespace SquaresGame
         public IReadOnlyList<Tuple<Point,Point,Player>> Lines { get { return lines.AsReadOnly(); } }
         public IReadOnlyList<Tuple<Point,Point,Player>> Rectangles { get { return rectangles.AsReadOnly(); } }
 
-        //=========== Events ===========//
-        public event EventHandler UpdateUI; // Singlecast --> Action
-        public event EventHandler<Player> PlayerWon;
+        #endregion
 
-        //=========== CTORS ===========//
-        public SquareGameModel(int fieldSize, Player p1, Player p2)
+        #region Events
+        //============= Events =============// 
+        public event EventHandler UpdateUI;
+        public event EventHandler<Player> EndGame;
+
+        #endregion
+
+        #region Constructors
+        //============= CTORS ==============//
+        public SquareGameModel(int fieldSize, Player playerOne, Player playerTwo, ISquaresGameDataAccess dAccess)
         {
-            //Field Inits
-            if (fieldSize < 2)
-                throw new ArgumentOutOfRangeException("fieldSize", "argument has to be > 1");
+            //Field inits
+            FieldSize = (fieldSize > 1) ? fieldSize : throw new ArgumentOutOfRangeException("FieldSize",fieldSize,"value must be > 1");
+            PlayerOne = playerOne                  ?? throw new ArgumentNullException("playerOne");
+            PlayerTwo = playerTwo                  ?? throw new ArgumentNullException("playerTwo");
+            dataAccess = dAccess                   ?? throw new ArgumentNullException("dataAccess");
 
-            FieldSize = fieldSize;
-            PlayerOne = p1;
-            PlayerTwo = p2;
             ActivePlayer = PlayerOne;
             GameEnded  = false;
             lines      = new List<Tuple<Point, Point, Player>>();
-            rectangles = new List<Tuple<Point, Point, Player>>();
-            rectCount = 0;
             linesToEnd = CalcLinesToEnd();
+            rectangles = new List<Tuple<Point, Point, Player>>();
+            registeredRectCount = 0;
         }
 
+        #endregion
+
+        #region Methods
         //=========== Methods ===========//
+
+        #region Public
         //=== Public ===//
         public void AddNewLine(Tuple<Point, Point> line)
         {
-            if (!lines.Any(p => IsSameLine(p,line)) && IsLine(line) && IsPermittedLine(line))
+            //Check validity of input line
+            if (IsLine(line) && IsPermittedLine(line) && !lines.Any(p => IsSameLine(p,line)))
             {
-                //Check if adding makes rectangle
+                //If adding line produces new rectangle(s) register rectangle(s)
                 UpdateRectangles(line);
 
-                //Add new Line
+                //Adding new Line
                 var newLine = SanitizeLine(line);
                 var newLineWithPlayer = new Tuple<Point,Point,Player>(newLine.Item1,newLine.Item2,ActivePlayer);
                 lines.Add(newLineWithPlayer);
@@ -81,16 +96,18 @@ namespace SquaresGame
                 if (!IsScored() && !GameEnded)
                     ChangeActivePlayer();
                 else
-                    ++ActivePlayer.Points;
+                    RegisterPoints();
+
+                //Broadcast event (UpdateUI)
                 OnUpdateUI(this,EventArgs.Empty);
             }
 
-            // Broadcast event if game ended
+            // Broadcast event (EndGame) if game ended
             if (GameEnded)
             {
-                if      (PlayerOne.Points > PlayerTwo.Points) OnPlayerWon(this, PlayerOne);
-                else if (PlayerTwo.Points > PlayerOne.Points) OnPlayerWon(this, PlayerTwo);
-                else                                          OnPlayerWon(this, null);                  
+                if      (PlayerOne.Points > PlayerTwo.Points) OnEndGame(this, PlayerOne);
+                else if (PlayerTwo.Points > PlayerOne.Points) OnEndGame(this, PlayerTwo);
+                else                                          OnEndGame(this, null);                  
             }
         }
 
@@ -101,15 +118,18 @@ namespace SquaresGame
 
         public void Restart()
         {
+            //Restore init state
             lines.Clear();
             rectangles.Clear();
-            rectCount = 0;
+            registeredRectCount = 0;
             PlayerOne.Points = 0;
             PlayerTwo.Points = 0;
             ActivePlayer = PlayerOne;
             GameEnded = false;
         }
+        #endregion
 
+        #region Private
         //=== Private ===//
         private void ChangeActivePlayer()
         {
@@ -118,13 +138,14 @@ namespace SquaresGame
 
         private Tuple<Point,Point> SanitizeLine(Tuple<Point, Point> line) 
         {
-            // Sets line direction left-to-right and top-to-bottom
+            // Sets line direction left-to-right or top-to-bottom
             int dRow = line.Item2.X - line.Item1.X;
             int dCol = line.Item2.Y - line.Item1.Y;
 
             if (dRow >= 0 && dCol >= 0)
-                return new Tuple<Point, Point>(line.Item1, line.Item2);
+                return line;
             else
+                //Flip
                 return new Tuple<Point, Point>(line.Item2, line.Item1);
         }
 
@@ -155,33 +176,41 @@ namespace SquaresGame
                     return (l.Item1.Equals(parallel.Item1) && l.Item2.Equals(parallel.Item2));
                 });
 
-
-                //Setup Side line
-                var sideOne = SanitizeLine(new Tuple<Point, Point>(line.Item1, parallelP1));
-                var sideTwo = SanitizeLine(new Tuple<Point, Point>(line.Item2, parallelP2));
-
-                //Check if side line exist
-                bool sidesExist = lines.Any(l =>
+                // Only proceed if parallel exists
+                if (parallelExists)
                 {
-                    return l.Item1.Equals(sideOne.Item1) && l.Item2.Equals(sideOne.Item2);
-                }) 
-                               && lines.Any(l =>
-                {
-                    return l.Item1.Equals(sideTwo.Item1) && l.Item2.Equals(sideTwo.Item2);
-                });
+                    //Setup Side line
+                    var sideOne = SanitizeLine(new Tuple<Point, Point>(line.Item1, parallelP1));
+                    var sideTwo = SanitizeLine(new Tuple<Point, Point>(line.Item2, parallelP2));
 
-                //All conditions met -> create rectangle
-                if (parallelExists && sidesExist)
-                {
-                    Point[] rectPoints = { line.Item1,line.Item2,parallelP1,parallelP2 };
-                    Tuple<Point, Point> rect = PointsToRectangle(rectPoints);
-                    rectangles.Add(new Tuple<Point, Point, Player>(rect.Item1, rect.Item2, ActivePlayer));
+                    //Check if both side lines exist
+                    bool sidesExist = lines.Any(l =>
+                    {
+                        return l.Item1.Equals(sideOne.Item1) && l.Item2.Equals(sideOne.Item2);
+                    })
+                                   && lines.Any(l =>
+                    {
+                        return l.Item1.Equals(sideTwo.Item1) && l.Item2.Equals(sideTwo.Item2);
+                    });
+
+                    //All conditions met -> create rectangle
+                    if (sidesExist)
+                    {
+                        Point[] rectPoints = { line.Item1, line.Item2, parallelP1, parallelP2 };
+                        Tuple<Point, Point> rect = PointsToRectangle(rectPoints);
+                        rectangles.Add(new Tuple<Point, Point, Player>(rect.Item1, rect.Item2, ActivePlayer));
+                    }
                 }
             }
         }
 
         private Tuple<Point,Point> PointsToRectangle(Point[] points)
         {
+            //Check array validity
+            if (points.Length != 4) 
+                throw new ArgumentNullException("points", "size of points array must be 4 to be rectangle corner points");           
+
+
             Point topLeft;
             Point bottomRight;
 
@@ -196,26 +225,39 @@ namespace SquaresGame
                     bottomRight = points[i];
             }
 
+            // Check rectangle validity
+            if (topLeft.Equals(bottomRight))
+                throw new ArgumentException("provided points cannot form a rectangle");
+
             return new Tuple<Point, Point>(topLeft,bottomRight);
         }
 
         private bool IsScored()
         {
-            bool scored = rectangles.Count > rectCount;
-            if(scored) 
-                ++rectCount;
+            return rectangles.Count > registeredRectCount;
+        }
 
-            return scored;
+        private void RegisterPoints()
+        {
+            int unregistered = rectangles.Count - registeredRectCount;
+            ActivePlayer.Points += unregistered;
+            registeredRectCount += unregistered;
         }
 
         private int CalcLinesToEnd()
         {
             // We are calculating the number of all possible permitted lines with math formula
-            int maxCornerLCount = 4 * 2; // 4 corners -> 2 possible line per corner
-            int maxInnerLCount = ((FieldSize * FieldSize) - (4 * FieldSize) + 4) * 4; // num of inner lines 
-                                                                                      //-> 4 possible line per inner point
-            int maxSideLCount = ((4 * FieldSize) - 8) * 3; // num of side lines -> 3 possible line per side
+            
+            // 4 corners points -> 2 possible lines per point
+            int maxCornerLCount = 4 * 2; 
+            
+            // (n^2-4n+4) inner points -> 4 possible lines per point
+            int maxInnerLCount = ((FieldSize * FieldSize) - (4 * FieldSize) + 4) * 4;
 
+            // (4n-8) side points -> 3 possible lines per point
+            int maxSideLCount = ((4 * FieldSize) - 8) * 3;
+
+            // Each line counted twice -> divide sum by 2
             return (maxCornerLCount + maxInnerLCount + maxSideLCount) / 2;
         }
 
@@ -226,25 +268,35 @@ namespace SquaresGame
 
         private bool IsLine(Tuple<Point,Point> line)
         {
+            // Line <=> p1 != p2
             return !(line.Item2.X - line.Item1.X == 0 && line.Item2.Y - line.Item1.Y == 0); 
         }
 
         private bool IsSameLine(Tuple<Point,Point,Player> p1,Tuple<Point,Point> p2)
         {
+            // Lines with same points considered to be same regardless direction
             return (p1.Item1 == p2.Item1 && p1.Item2 == p2.Item2) 
               ||   (p1.Item2 == p2.Item1 && p1.Item1 == p2.Item2);
         }
 
         private bool IsPermittedLine(Tuple<Point,Point> line)
         {
-            int dx = Math.Abs(line.Item2.X - line.Item1.X);
-            int dy = Math.Abs(line.Item2.Y - line.Item1.Y);
+            // Only non diagonal lines are allowed of length 1
+            int dRow = Math.Abs(line.Item2.X - line.Item1.X);
+            int dCol = Math.Abs(line.Item2.Y - line.Item1.Y);
 
-            return dx <= 1 && dy <= 1 && dx * dy != 1;
+            return dRow <= 1 && dCol <= 1 && dRow * dCol != 1;
         }
 
+        #endregion
+
+        #endregion
+
+        #region Event senders
         //=========== Event Senders ===========//
         protected virtual void OnUpdateUI(object sender, EventArgs e) => UpdateUI?.Invoke(sender,e);
-        protected virtual void OnPlayerWon(object sender,Player p) => PlayerWon?.Invoke(sender,p);
+        protected virtual void OnEndGame(object sender,Player p) => EndGame?.Invoke(sender,p);
+
+        #endregion
     }
 }

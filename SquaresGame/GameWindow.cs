@@ -9,8 +9,10 @@ namespace SquaresGame
     {
         //=========== Fields ===========//
         private SquareGameModel model;
-        const float dotRadius = 20.0f;
-        const float lineWidth = 5.0f;
+
+        //UI related
+        private const float dotRadius = 20.0f;
+        private const float lineWidth = 5.0f;
         private Dot[,] dots;
 
         //Mouse related
@@ -23,7 +25,8 @@ namespace SquaresGame
         {
             InitializeComponent();
             this.SetStyle(ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer |
-                 ControlStyles.AllPaintingInWmPaint | ControlStyles.SupportsTransparentBackColor, true);
+                          ControlStyles.AllPaintingInWmPaint | ControlStyles.SupportsTransparentBackColor, 
+                          true);
         }
 
         //=========== Methods ===========//
@@ -76,7 +79,7 @@ namespace SquaresGame
             const float delta = dotRadius;
             foreach (Dot dot in dots)
             {
-                // Click intersects dot
+                // Cursor intersects dot
                 if(     (dot.xCoord > e.X - delta && dot.xCoord < e.X + delta)
                     &&  (dot.yCoord > e.Y - delta && dot.yCoord < e.Y + delta))
                 {
@@ -92,11 +95,12 @@ namespace SquaresGame
             //Setup Model and events
             model = new SquareGameModel(5, //FieldSize
                                         new Player("Sanyi",Color.Black), // PlayerOne
-                                        new Player("Balázs",Color.Blue)); // PlayerTwo
+                                        new Player("Balázs",Color.Blue), // PlayerTwo
+                                        new SquaresGameDataAccess());    // DataAccess
 
             //Subscriptions
             model.UpdateUI  += UpdateUI;
-            model.PlayerWon += PlayerWon;
+            model.EndGame   += PlayerWon;
 
             //Setup UI and refresh
             p1NameLabel.Text = model.PlayerOne.PlayerName;
@@ -107,7 +111,7 @@ namespace SquaresGame
             canvas.Invalidate();
         }
 
-        //===== Model events =====//
+        //===== Model event handlers =====//
 
         private void UpdateUI(object sender, EventArgs e)
         {
@@ -127,7 +131,7 @@ namespace SquaresGame
             canvas.Invalidate();
         }
 
-        //===== UI Events =====//
+        //===== UI Event handlers =====//
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -150,8 +154,6 @@ namespace SquaresGame
                 }
             }
         }
-
-        private void button1_Click(object sender, EventArgs e){}
 
         private void canvas_MouseUp(object sender, MouseEventArgs e)
         {
@@ -181,8 +183,6 @@ namespace SquaresGame
                 }
             }
         }
-
-        
 
         protected override CreateParams CreateParams // Form level double buffering
         {
