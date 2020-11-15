@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SquaresGame.Persistence;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -9,6 +10,7 @@ namespace SquaresGame
     {
         //=========== Fields ===========//
         private SquareGameModel model;
+        private SquaresGameDataAccess dataAccess;
 
         //UI related
         private const float dotRadius = 20.0f;
@@ -92,15 +94,20 @@ namespace SquaresGame
         //=========== Events ===========//
         private void newGameBtn_Click(object sender, EventArgs e)
         {
+            NewGame(this, new NewGameEventArgs(
+                             new Player("Sanyi", Color.Black),
+                             new Player("Balázs", Color.Blue)));
+        }
+
+        private void NewGame(object sender, NewGameEventArgs e)
+        {
             //Setup Model and events
-            model = new SquareGameModel(5, //FieldSize
-                                        new Player("Sanyi",Color.Black), // PlayerOne
-                                        new Player("Balázs",Color.Blue), // PlayerTwo
-                                        new SquaresGameDataAccess());    // DataAccess
+            dataAccess = new SquaresGameDataAccess();
+            model = new SquareGameModel(5, e.PlayerOne, e.PlayerTwo, dataAccess);
 
             //Subscriptions
-            model.UpdateUI  += UpdateUI;
-            model.EndGame   += PlayerWon;
+            model.UpdateUI += UpdateUI;
+            model.EndGame += PlayerWon;
 
             //Setup UI and refresh
             p1NameLabel.Text = model.PlayerOne.PlayerName;
@@ -108,7 +115,7 @@ namespace SquaresGame
             saveGameBtn.Enabled = true;
 
             InitDots(model.FieldSize);
-            canvas.Invalidate();
+            UpdateUI(this, EventArgs.Empty);
         }
 
         //===== Model event handlers =====//
@@ -191,6 +198,27 @@ namespace SquaresGame
                 CreateParams cp = base.CreateParams;
                 cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED
                 return cp;
+            }
+        }
+
+        private async void loadGameBtn_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    if (model == null)
+                        NewGame(this, new NewGameEventArgs(null,null));
+
+                    await model.LoadGameAsync(fileDialog.FileName);
+                    InitDots(model.FieldSize);
+                    UpdateUI(this, EventArgs.Empty);
+
+                } catch(Exception excp)
+                {
+                    MessageBox.Show(excp.Message);
+                }
             }
         }
     }

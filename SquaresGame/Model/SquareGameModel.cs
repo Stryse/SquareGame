@@ -1,7 +1,9 @@
-﻿using System;
+﻿using SquaresGame.Model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SquaresGame
 {
@@ -11,11 +13,15 @@ namespace SquaresGame
         public Color  PlayerColor { get; private set; }
         public int    Points      { get; set; }
 
-        public Player(String pName, Color pColor)
+        public Player(String pName, Color pColor, int points)
         {
             PlayerName  = pName;
             PlayerColor = pColor;
-            Points      = 0;
+            Points      = points;
+        }
+
+        public Player(String pName, Color pColor) : this(pName,pColor,0)
+        {
         }
     }
 
@@ -23,9 +29,9 @@ namespace SquaresGame
 
         #region Fields
         //============= Fields =============//
-        private readonly List<Tuple<Point, Point, Player>> lines;
-        private readonly int linesToEnd;
-        private readonly List<Tuple<Point, Point, Player>> rectangles;
+        private List<Tuple<Point, Point, Player>> lines;
+        private int linesToEnd;
+        private List<Tuple<Point, Point, Player>> rectangles;
         private int registeredRectCount;
 
         // DataAccess
@@ -57,9 +63,9 @@ namespace SquaresGame
         {
             //Field inits
             FieldSize = (fieldSize > 1) ? fieldSize : throw new ArgumentOutOfRangeException("FieldSize",fieldSize,"value must be > 1");
-            PlayerOne = playerOne                  ?? throw new ArgumentNullException("playerOne");
-            PlayerTwo = playerTwo                  ?? throw new ArgumentNullException("playerTwo");
-            dataAccess = dAccess                   ?? throw new ArgumentNullException("dataAccess");
+            PlayerOne = playerOne;
+            PlayerTwo = playerTwo;
+            dataAccess = dAccess;
 
             ActivePlayer = PlayerOne;
             GameEnded  = false;
@@ -116,6 +122,22 @@ namespace SquaresGame
             AddNewLine(new Tuple<Point, Point>(a, b));
         }
 
+        public async Task LoadGameAsync(String filePath)
+        {
+            if (dataAccess == null)
+                throw new InvalidOperationException("No data access is provided.");
+
+            GameStateWrapper state = await dataAccess.LoadGameAsync(filePath);
+            this.GameEnded = false;
+            this.FieldSize = state.FieldSize;
+            this.PlayerOne = state.PlayerOne;
+            this.PlayerTwo = state.PlayerTwo;
+            this.ActivePlayer = state.ActivePlayer;
+            this.lines = state.Lines;
+            this.linesToEnd = CalcLinesToEnd();
+            this.rectangles = state.Rectangles;
+            this.registeredRectCount = state.RegisteredRectCount;
+        }
         public void Restart()
         {
             //Restore init state

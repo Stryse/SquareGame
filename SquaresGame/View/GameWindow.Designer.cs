@@ -32,7 +32,7 @@
             this.topPanel = new System.Windows.Forms.Panel();
             this.p2PointLabel = new System.Windows.Forms.Label();
             this.p1PointLabel = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.loadGameBtn = new System.Windows.Forms.Button();
             this.saveGameBtn = new System.Windows.Forms.Button();
             this.newGameBtn = new System.Windows.Forms.Button();
             this.p2NameLabel = new System.Windows.Forms.Label();
@@ -58,7 +58,7 @@
             this.topPanel.BackColor = System.Drawing.SystemColors.Window;
             this.topPanel.Controls.Add(this.p2PointLabel);
             this.topPanel.Controls.Add(this.p1PointLabel);
-            this.topPanel.Controls.Add(this.button1);
+            this.topPanel.Controls.Add(this.loadGameBtn);
             this.topPanel.Controls.Add(this.saveGameBtn);
             this.topPanel.Controls.Add(this.newGameBtn);
             this.topPanel.Controls.Add(this.p2NameLabel);
@@ -89,14 +89,15 @@
             this.p1PointLabel.TabIndex = 5;
             this.p1PointLabel.Text = "0";
             // 
-            // button1
+            // loadGameBtn
             // 
-            this.button1.Location = new System.Drawing.Point(349, 108);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(120, 42);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Load Game";
-            this.button1.UseVisualStyleBackColor = true;
+            this.loadGameBtn.Location = new System.Drawing.Point(349, 108);
+            this.loadGameBtn.Name = "loadGameBtn";
+            this.loadGameBtn.Size = new System.Drawing.Size(120, 42);
+            this.loadGameBtn.TabIndex = 4;
+            this.loadGameBtn.Text = "Load Game";
+            this.loadGameBtn.UseVisualStyleBackColor = true;
+            this.loadGameBtn.Click += new System.EventHandler(this.loadGameBtn_Click);
             // 
             // saveGameBtn
             // 
@@ -161,7 +162,7 @@
 
         private System.Windows.Forms.Panel canvas;
         private System.Windows.Forms.Panel topPanel;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button loadGameBtn;
         private System.Windows.Forms.Button saveGameBtn;
         private System.Windows.Forms.Button newGameBtn;
         private System.Windows.Forms.Label p2NameLabel;
