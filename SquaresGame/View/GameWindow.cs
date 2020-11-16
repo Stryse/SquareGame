@@ -1,4 +1,6 @@
-﻿using SquaresGame.Persistence;
+﻿using SquaresGame.Model;
+using SquaresGame.Persistence;
+using SquaresGame.View;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -92,34 +94,8 @@ namespace SquaresGame
         }
 
         //=========== Events ===========//
-        private void newGameBtn_Click(object sender, EventArgs e)
-        {
-            NewGame(this, new NewGameEventArgs(
-                             new Player("Sanyi", Color.Black),
-                             new Player("Balázs", Color.Blue)));
-        }
-
-        private void NewGame(object sender, NewGameEventArgs e)
-        {
-            //Setup Model and events
-            dataAccess = new SquaresGameDataAccess();
-            model = new SquareGameModel(5, e.PlayerOne, e.PlayerTwo, dataAccess);
-
-            //Subscriptions
-            model.UpdateUI += UpdateUI;
-            model.EndGame += PlayerWon;
-
-            //Setup UI and refresh
-            p1NameLabel.Text = model.PlayerOne.PlayerName;
-            p2NameLabel.Text = model.PlayerTwo.PlayerName;
-            saveGameBtn.Enabled = true;
-
-            InitDots(model.FieldSize);
-            UpdateUI(this, EventArgs.Empty);
-        }
 
         //===== Model event handlers =====//
-
         private void UpdateUI(object sender, EventArgs e)
         {
             canvas.Invalidate();
@@ -135,10 +111,94 @@ namespace SquaresGame
 
             MessageBox.Show(message);
             model.Restart();
-            canvas.Invalidate();
+            UpdateUI(this, EventArgs.Empty);
         }
 
         //===== UI Event handlers =====//
+        private void GameWindow_Load(object sender, EventArgs e)
+        {
+            dataAccess = new SquaresGameDataAccess();
+        }
+
+        private void newGameBtn_Click(object sender, EventArgs e)
+        {
+            GameStarter starter = new GameStarter();
+            Player[] players = null;
+
+            starter.PlayerCreated += (sender2, playerArr) => players = playerArr; 
+            starter.ShowDialog();
+
+            if(starter.DialogResult == DialogResult.OK)
+            {
+                model = new SquareGameModel(5, players[0], players[1], dataAccess);
+                NewGame(model);
+            }
+        }
+
+        private async void saveGameBtn_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+
+                }
+                catch (Exception excp)
+                {
+                    MessageBox.Show(excp.Message);
+                }
+            }
+        }
+
+        private async void loadGameBtn_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    if (model == null)
+                    {
+                        GameStateWrapper state = await dataAccess.LoadGameAsync(fileDialog.FileName);
+                        model = SquareGameModel.FromSave(state, dataAccess);
+                        NewGame(model);
+                    }
+                    else
+                    {
+                        await model.LoadGameAsync(fileDialog.FileName);
+                        p1NameLabel.Text = model.PlayerOne.PlayerName;
+                        p2NameLabel.Text = model.PlayerTwo.PlayerName;
+                    }
+                    InitDots(model.FieldSize);
+                    UpdateUI(this, EventArgs.Empty);
+
+                } catch(Exception excp)
+                {
+                    MessageBox.Show(excp.Message);
+                }
+            }
+        }
+
+        private void NewGame(SquareGameModel model)
+        {
+            //Subscriptions
+            model.UpdateUI += UpdateUI;
+            model.EndGame += PlayerWon;
+
+            //Setup UI and refresh
+            p1NameLabel.Visible = true;
+            p1PointLabel.Visible = true;
+            p2NameLabel.Visible = true;
+            p2PointLabel.Visible = true;
+            p1NameLabel.Text = model.PlayerOne.PlayerName;
+            p2NameLabel.Text = model.PlayerTwo.PlayerName;
+            saveGameBtn.Enabled = true;
+
+            InitDots(model.FieldSize);
+            UpdateUI(this, EventArgs.Empty);
+        }
+
         private void canvas_Paint(object sender, PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -191,6 +251,7 @@ namespace SquaresGame
             }
         }
 
+     
         protected override CreateParams CreateParams // Form level double buffering
         {
             get
@@ -198,27 +259,6 @@ namespace SquaresGame
                 CreateParams cp = base.CreateParams;
                 cp.ExStyle |= 0x02000000;  // WS_EX_COMPOSITED
                 return cp;
-            }
-        }
-
-        private async void loadGameBtn_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            if (fileDialog.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    if (model == null)
-                        NewGame(this, new NewGameEventArgs(null,null));
-
-                    await model.LoadGameAsync(fileDialog.FileName);
-                    InitDots(model.FieldSize);
-                    UpdateUI(this, EventArgs.Empty);
-
-                } catch(Exception excp)
-                {
-                    MessageBox.Show(excp.Message);
-                }
             }
         }
     }

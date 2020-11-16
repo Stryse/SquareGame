@@ -75,6 +75,18 @@ namespace SquaresGame
             registeredRectCount = 0;
         }
 
+        //Static factory
+        public static SquareGameModel FromSave(GameStateWrapper state, ISquaresGameDataAccess dAccess)
+        {
+            SquareGameModel instance = new SquareGameModel(state.FieldSize, state.PlayerOne, state.PlayerTwo, dAccess);
+            instance.ActivePlayer = state.ActivePlayer;
+            instance.lines = state.Lines;
+            instance.rectangles = state.Rectangles;
+            instance.registeredRectCount = state.RegisteredRectCount;
+
+            return instance;
+        }
+
         #endregion
 
         #region Methods

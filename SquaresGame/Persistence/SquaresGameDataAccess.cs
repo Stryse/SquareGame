@@ -48,7 +48,7 @@ namespace SquaresGame
 
                         //Populate Player
                         String pName = splitLine[0];
-                        Color pColor = Color.FromName(splitLine[1]);
+                        Color pColor = Color.FromArgb(int.Parse(splitLine[1]));
                         int points = int.Parse(splitLine[2]);
                         players[i] = new Player(pName, pColor, points);
                     }
@@ -90,7 +90,7 @@ namespace SquaresGame
 
                         Point p1 = new Point(int.Parse(splitLine[0]), int.Parse(splitLine[1]));
                         Point p2 = new Point(int.Parse(splitLine[2]), int.Parse(splitLine[3]));
-                        int playerInd = int.Parse(splitLine[3]);
+                        int playerInd = int.Parse(splitLine[4]);
                         state.Rectangles.Add(new Tuple<Point, Point, Player>(p1, p2, players[playerInd]));
                     }
                     reader.Close();

@@ -71,23 +71,25 @@
             // 
             // p2PointLabel
             // 
-            this.p2PointLabel.AutoSize = true;
             this.p2PointLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.p2PointLabel.Location = new System.Drawing.Point(600, 60);
+            this.p2PointLabel.Location = new System.Drawing.Point(482, 60);
             this.p2PointLabel.Name = "p2PointLabel";
-            this.p2PointLabel.Size = new System.Drawing.Size(51, 55);
+            this.p2PointLabel.Size = new System.Drawing.Size(306, 55);
             this.p2PointLabel.TabIndex = 6;
             this.p2PointLabel.Text = "0";
+            this.p2PointLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.p2PointLabel.Visible = false;
             // 
             // p1PointLabel
             // 
-            this.p1PointLabel.AutoSize = true;
             this.p1PointLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.p1PointLabel.Location = new System.Drawing.Point(148, 60);
+            this.p1PointLabel.Location = new System.Drawing.Point(12, 60);
             this.p1PointLabel.Name = "p1PointLabel";
-            this.p1PointLabel.Size = new System.Drawing.Size(51, 55);
+            this.p1PointLabel.Size = new System.Drawing.Size(331, 55);
             this.p1PointLabel.TabIndex = 5;
             this.p1PointLabel.Text = "0";
+            this.p1PointLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.p1PointLabel.Visible = false;
             // 
             // loadGameBtn
             // 
@@ -108,6 +110,7 @@
             this.saveGameBtn.TabIndex = 3;
             this.saveGameBtn.Text = "Save Game";
             this.saveGameBtn.UseVisualStyleBackColor = true;
+            this.saveGameBtn.Click += new System.EventHandler(this.saveGameBtn_Click);
             // 
             // newGameBtn
             // 
@@ -121,23 +124,25 @@
             // 
             // p2NameLabel
             // 
-            this.p2NameLabel.AutoSize = true;
             this.p2NameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.p2NameLabel.Location = new System.Drawing.Point(555, 9);
+            this.p2NameLabel.Location = new System.Drawing.Point(475, 9);
             this.p2NameLabel.Name = "p2NameLabel";
-            this.p2NameLabel.Size = new System.Drawing.Size(145, 42);
+            this.p2NameLabel.Size = new System.Drawing.Size(313, 42);
             this.p2NameLabel.TabIndex = 1;
             this.p2NameLabel.Text = "Player2";
+            this.p2NameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.p2NameLabel.Visible = false;
             // 
             // p1NameLabel
             // 
-            this.p1NameLabel.AutoSize = true;
             this.p1NameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 27.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.p1NameLabel.Location = new System.Drawing.Point(105, 9);
+            this.p1NameLabel.Location = new System.Drawing.Point(12, 9);
             this.p1NameLabel.Name = "p1NameLabel";
-            this.p1NameLabel.Size = new System.Drawing.Size(145, 42);
+            this.p1NameLabel.Size = new System.Drawing.Size(331, 42);
             this.p1NameLabel.TabIndex = 0;
             this.p1NameLabel.Text = "Player1";
+            this.p1NameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.p1NameLabel.Visible = false;
             // 
             // GameWindow
             // 
@@ -152,8 +157,8 @@
             this.Name = "GameWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Squares Game";
+            this.Load += new System.EventHandler(this.GameWindow_Load);
             this.topPanel.ResumeLayout(false);
-            this.topPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
