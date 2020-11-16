@@ -3,6 +3,7 @@ using SquaresGame.Persistence;
 using SquaresGame.View;
 using System;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -93,6 +94,31 @@ namespace SquaresGame
             return null;
         }
 
+        public async Task LoadGame(String path)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    GameStateWrapper state = await dataAccess.LoadGameAsync(path);
+                    model = SquareGameModel.FromSave(state, dataAccess);
+                    NewGame(model);
+                }
+                else
+                {
+                    await model.LoadGameAsync(path);
+                    p1NameLabel.Text = model.PlayerOne.PlayerName;
+                    p2NameLabel.Text = model.PlayerTwo.PlayerName;
+                }
+                InitDots(model.FieldSize);
+                UpdateUI(this, EventArgs.Empty);
+            }
+            catch (Exception excp)
+            {
+                MessageBox.Show(excp.Message);
+            }
+        }
+
         //=========== Events ===========//
 
         //===== Model event handlers =====//
@@ -156,27 +182,7 @@ namespace SquaresGame
         {
             if (openDialog.ShowDialog() == DialogResult.OK)
             {
-                try
-                {
-                    if (model == null)
-                    {
-                        GameStateWrapper state = await dataAccess.LoadGameAsync(openDialog.FileName);
-                        model = SquareGameModel.FromSave(state, dataAccess);
-                        NewGame(model);
-                    }
-                    else
-                    {
-                        await model.LoadGameAsync(openDialog.FileName);
-                        p1NameLabel.Text = model.PlayerOne.PlayerName;
-                        p2NameLabel.Text = model.PlayerTwo.PlayerName;
-                    }
-                    InitDots(model.FieldSize);
-                    UpdateUI(this, EventArgs.Empty);
-
-                } catch(Exception excp)
-                {
-                    MessageBox.Show(excp.Message);
-                }
+                await LoadGame(openDialog.FileName);
             }
         }
 
@@ -251,7 +257,20 @@ namespace SquaresGame
             }
         }
 
-     
+        private async void canvas_DragDrop(object sender, DragEventArgs e)
+        {
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            string file = files[0];
+
+            await LoadGame(file);
+        }
+
+        private void canvas_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+        }
+
+
         protected override CreateParams CreateParams // Form level double buffering
         {
             get

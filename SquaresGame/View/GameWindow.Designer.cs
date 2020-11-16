@@ -44,12 +44,15 @@
             // 
             // canvas
             // 
+            this.canvas.AllowDrop = true;
             this.canvas.BackColor = System.Drawing.SystemColors.Info;
             this.canvas.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.canvas.Location = new System.Drawing.Point(0, 161);
             this.canvas.Name = "canvas";
             this.canvas.Size = new System.Drawing.Size(800, 800);
             this.canvas.TabIndex = 0;
+            this.canvas.DragDrop += new System.Windows.Forms.DragEventHandler(this.canvas_DragDrop);
+            this.canvas.DragEnter += new System.Windows.Forms.DragEventHandler(this.canvas_DragEnter);
             this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
             this.canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseDown);
             this.canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.canvas_MouseMove);
@@ -152,6 +155,7 @@
             // 
             // GameWindow
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 961);
