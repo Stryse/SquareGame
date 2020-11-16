@@ -134,6 +134,23 @@ namespace SquaresGame
             AddNewLine(new Tuple<Point, Point>(a, b));
         }
 
+        public async Task SaveGameAsync(String filePath)
+        {
+            if (dataAccess == null)
+                throw new InvalidOperationException("No data access is provided.");
+
+            GameStateWrapper state = new GameStateWrapper();
+            state.PlayerOne = PlayerOne;
+            state.PlayerTwo = PlayerTwo;
+            state.ActivePlayer = ActivePlayer;
+            state.Lines = lines;
+            state.Rectangles = rectangles;
+            state.RegisteredRectCount = registeredRectCount;
+            state.FieldSize = FieldSize;
+
+            await dataAccess.SaveGameAsync(state, filePath);
+        }
+
         public async Task LoadGameAsync(String filePath)
         {
             if (dataAccess == null)

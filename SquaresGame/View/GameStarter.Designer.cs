@@ -36,6 +36,9 @@
             this.p2NameEdit = new System.Windows.Forms.TextBox();
             this.okBtn = new System.Windows.Forms.Button();
             this.cancelBtn = new System.Windows.Forms.Button();
+            this.radio3 = new System.Windows.Forms.RadioButton();
+            this.radio5 = new System.Windows.Forms.RadioButton();
+            this.radio9 = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // p1NameEdit
@@ -114,11 +117,50 @@
             this.cancelBtn.UseVisualStyleBackColor = true;
             this.cancelBtn.Click += new System.EventHandler(this.cancelBtn_Click);
             // 
+            // radio3
+            // 
+            this.radio3.AutoSize = true;
+            this.radio3.Location = new System.Drawing.Point(36, 246);
+            this.radio3.Name = "radio3";
+            this.radio3.Size = new System.Drawing.Size(42, 17);
+            this.radio3.TabIndex = 8;
+            this.radio3.TabStop = true;
+            this.radio3.Text = "3x3";
+            this.radio3.UseVisualStyleBackColor = true;
+            this.radio3.CheckedChanged += new System.EventHandler(this.radio3_CheckedChanged);
+            // 
+            // radio5
+            // 
+            this.radio5.AutoSize = true;
+            this.radio5.Location = new System.Drawing.Point(97, 246);
+            this.radio5.Name = "radio5";
+            this.radio5.Size = new System.Drawing.Size(42, 17);
+            this.radio5.TabIndex = 9;
+            this.radio5.TabStop = true;
+            this.radio5.Text = "5x5";
+            this.radio5.UseVisualStyleBackColor = true;
+            this.radio5.CheckedChanged += new System.EventHandler(this.radio5_CheckedChanged);
+            // 
+            // radio9
+            // 
+            this.radio9.AutoSize = true;
+            this.radio9.Location = new System.Drawing.Point(161, 246);
+            this.radio9.Name = "radio9";
+            this.radio9.Size = new System.Drawing.Size(42, 17);
+            this.radio9.TabIndex = 10;
+            this.radio9.TabStop = true;
+            this.radio9.Text = "9x9";
+            this.radio9.UseVisualStyleBackColor = true;
+            this.radio9.CheckedChanged += new System.EventHandler(this.radio9_CheckedChanged);
+            // 
             // GameStarter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(239, 316);
+            this.Controls.Add(this.radio9);
+            this.Controls.Add(this.radio5);
+            this.Controls.Add(this.radio3);
             this.Controls.Add(this.cancelBtn);
             this.Controls.Add(this.okBtn);
             this.Controls.Add(this.p2ColorBtn);
@@ -148,5 +190,8 @@
         private System.Windows.Forms.TextBox p2NameEdit;
         private System.Windows.Forms.Button okBtn;
         private System.Windows.Forms.Button cancelBtn;
+        private System.Windows.Forms.RadioButton radio3;
+        private System.Windows.Forms.RadioButton radio5;
+        private System.Windows.Forms.RadioButton radio9;
     }
 }

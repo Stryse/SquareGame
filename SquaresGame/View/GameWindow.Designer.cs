@@ -37,6 +37,8 @@
             this.newGameBtn = new System.Windows.Forms.Button();
             this.p2NameLabel = new System.Windows.Forms.Label();
             this.p1NameLabel = new System.Windows.Forms.Label();
+            this.saveDialog = new System.Windows.Forms.SaveFileDialog();
+            this.openDialog = new System.Windows.Forms.OpenFileDialog();
             this.topPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -144,6 +146,10 @@
             this.p1NameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.p1NameLabel.Visible = false;
             // 
+            // openDialog
+            // 
+            this.openDialog.FileName = "openFileDialog1";
+            // 
             // GameWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -174,6 +180,8 @@
         private System.Windows.Forms.Label p1NameLabel;
         private System.Windows.Forms.Label p2PointLabel;
         private System.Windows.Forms.Label p1PointLabel;
+        private System.Windows.Forms.SaveFileDialog saveDialog;
+        private System.Windows.Forms.OpenFileDialog openDialog;
     }
 }
 

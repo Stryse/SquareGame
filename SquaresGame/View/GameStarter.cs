@@ -13,6 +13,7 @@ namespace SquaresGame.View
     public partial class GameStarter : Form
     {
         //Fields
+        int fieldSize;
         private Player[] players;
         private String p1Name;
         private Color p1Color;
@@ -21,7 +22,7 @@ namespace SquaresGame.View
         private Color p2Color;
 
         //Events
-        public event EventHandler<Player[]> PlayerCreated;
+        public event EventHandler<Tuple<Player[],int>> PlayerCreated;
 
         //CTOR
         public GameStarter()
@@ -31,6 +32,8 @@ namespace SquaresGame.View
 
         private void GameStarter_Load(object sender, EventArgs e)
         {
+            fieldSize = 3;
+            radio3.Checked = true;
             players = new Player[2];
             p1Color = Color.Green;
             p2Color = Color.Blue;
@@ -95,6 +98,22 @@ namespace SquaresGame.View
         }
 
         //Event senders
-        protected virtual void OnPlayersCreated(object sender, Player[] players) => PlayerCreated?.Invoke(this, players);
+        protected virtual void OnPlayersCreated(object sender, Player[] players) 
+            => PlayerCreated?.Invoke(this, new Tuple<Player[], int>(players,fieldSize));
+
+        private void radio3_CheckedChanged(object sender, EventArgs e)
+        {
+            fieldSize = 3;
+        }
+
+        private void radio5_CheckedChanged(object sender, EventArgs e)
+        {
+            fieldSize = 5;
+        }
+
+        private void radio9_CheckedChanged(object sender, EventArgs e)
+        {
+            fieldSize = 9;
+        }
     }
 }

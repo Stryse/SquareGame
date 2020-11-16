@@ -20,8 +20,8 @@ namespace SquaresGame
             LINE: |LineCount:int
             1...LineCount -> [
             LINE: |P1.X P1.Y|P2.X P2.Y|PlayerInd(0|1):int
-            LINE: |RegisteredRectCount:int
             ]
+            LINE: |RegisteredRectCount:int
             1...RegisteredRectCount -> [
             LINE: |P1.X P1.Y|P2.X P2.Y|PlayerInd(0|1):int
             ]
@@ -102,9 +102,76 @@ namespace SquaresGame
             }
         }
 
-        public Task SaveGameAsync(GameStateWrapper state)
+        // Saving
+        /*
+            Input file format:
+            LINE: |PlayerName:Str|PlayerColor:Str|Points:int
+            LINE: |PlayerName:Str|PlayerColor:Str|Points:int
+            LINE: |ActivePlayerInd(0|1):int|FieldSize:int
+            LINE: |LineCount:int
+            1...LineCount -> [
+            LINE: |P1.X P1.Y|P2.X P2.Y|PlayerInd(0|1):int
+            ]
+            LINE: |RegisteredRectCount:int
+            1...RegisteredRectCount -> [
+            LINE: |P1.X P1.Y|P2.X P2.Y|PlayerInd(0|1):int
+            ]
+            EOF
+        */
+        public async Task SaveGameAsync(GameStateWrapper state, String path)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using(StreamWriter writer = new StreamWriter(path))
+                {
+                    //Writing players
+                    Player p = state.PlayerOne;
+                    await writer.WriteLineAsync(String.Format("{0} {1} {2}",p.PlayerName,p.PlayerColor.ToArgb(),p.Points));
+                    p = state.PlayerTwo;
+                    await writer.WriteLineAsync(String.Format("{0} {1} {2}", p.PlayerName, p.PlayerColor.ToArgb(), p.Points));
+
+                    //ActivePlayerInd and FieldSize
+                    int activeP = (state.ActivePlayer == state.PlayerOne) ? 0 : 1;
+                    await writer.WriteLineAsync(String.Format("{0} {1}",activeP,state.FieldSize));
+                    
+                    //LineCount and lines
+                    await writer.WriteLineAsync(state.Lines.Count.ToString());
+                    
+                    for(int i = 0; i < state.Lines.Count; ++i)
+                    {
+                        activeP = (state.Lines[i].Item3 == state.PlayerOne) ? 0 : 1;
+                        await writer.WriteLineAsync(String.Format("{0} {1} {2} {3} {4}",
+                            state.Lines[i].Item1.X,
+                            state.Lines[i].Item1.Y,
+                            state.Lines[i].Item2.X,
+                            state.Lines[i].Item2.Y,
+                            activeP
+                            ));
+                    }
+
+                    //RegisteredRectanglesCount and rectangles
+                    await writer.WriteLineAsync(state.RegisteredRectCount.ToString());
+
+                    for(int i = 0; i < state.RegisteredRectCount; ++i)
+                    {
+                        activeP = (state.Rectangles[i].Item3 == state.PlayerOne) ? 0 : 1;
+                        await writer.WriteLineAsync(String.Format("{0} {1} {2} {3} {4}",
+                            state.Rectangles[i].Item1.X,
+                            state.Rectangles[i].Item1.Y,
+                            state.Rectangles[i].Item2.X,
+                            state.Rectangles[i].Item2.Y,
+                            activeP
+                            ));
+                    }
+
+                    writer.Flush();
+                    writer.Close();
+                }
+            }
+            catch
+            {
+                throw new Exception("Error occured during saving process");
+            }
         }
     }
 }

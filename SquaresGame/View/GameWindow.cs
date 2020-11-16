@@ -124,25 +124,26 @@ namespace SquaresGame
         {
             GameStarter starter = new GameStarter();
             Player[] players = null;
+            int fieldSize = 0;
 
-            starter.PlayerCreated += (sender2, playerArr) => players = playerArr; 
+            starter.PlayerCreated += (sender2, args) => { players = args.Item1; fieldSize = args.Item2; };  
             starter.ShowDialog();
 
             if(starter.DialogResult == DialogResult.OK)
             {
-                model = new SquareGameModel(5, players[0], players[1], dataAccess);
+                model = new SquareGameModel(fieldSize, players[0], players[1], dataAccess);
                 NewGame(model);
             }
         }
 
         private async void saveGameBtn_Click(object sender, EventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            if (fileDialog.ShowDialog() == DialogResult.OK)
+            if (saveDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-
+                    await model.SaveGameAsync(saveDialog.FileName);
+                    MessageBox.Show("Game saved!");
                 }
                 catch (Exception excp)
                 {
@@ -153,20 +154,19 @@ namespace SquaresGame
 
         private async void loadGameBtn_Click(object sender, EventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            if (fileDialog.ShowDialog() == DialogResult.OK)
+            if (openDialog.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
                     if (model == null)
                     {
-                        GameStateWrapper state = await dataAccess.LoadGameAsync(fileDialog.FileName);
+                        GameStateWrapper state = await dataAccess.LoadGameAsync(openDialog.FileName);
                         model = SquareGameModel.FromSave(state, dataAccess);
                         NewGame(model);
                     }
                     else
                     {
-                        await model.LoadGameAsync(fileDialog.FileName);
+                        await model.LoadGameAsync(openDialog.FileName);
                         p1NameLabel.Text = model.PlayerOne.PlayerName;
                         p2NameLabel.Text = model.PlayerTwo.PlayerName;
                     }
