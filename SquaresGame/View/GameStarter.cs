@@ -1,35 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using SquaresGame.Model;
+using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SquaresGame.View
 {
     public partial class GameStarter : Form
     {
-        //Fields
-        int fieldSize;
+        #region Fields
+        //======== Fields ========//
+        private int fieldSize;
         private Player[] players;
         private String p1Name;
         private Color p1Color;
 
         private String p2Name;
         private Color p2Color;
+        #endregion
 
-        //Events
+        #region Events
+        //======== Events ========//
         public event EventHandler<Tuple<Player[],int>> PlayerCreated;
+        #endregion
 
-        //CTOR
+        #region Constructor
+        //======== CTOR ========//
         public GameStarter()
         {
             InitializeComponent();
         }
+        #endregion
 
+        #region Event Handlers
         private void GameStarter_Load(object sender, EventArgs e)
         {
             fieldSize = 3;
@@ -96,11 +98,6 @@ namespace SquaresGame.View
             return !String.IsNullOrEmpty(p1.PlayerName) && !String.IsNullOrEmpty(p2.PlayerName)
               &&   !p1.PlayerName.Equals(p2.PlayerName) && !p1.PlayerColor.Equals(p2.PlayerColor);
         }
-
-        //Event senders
-        protected virtual void OnPlayersCreated(object sender, Player[] players) 
-            => PlayerCreated?.Invoke(this, new Tuple<Player[], int>(players,fieldSize));
-
         private void radio3_CheckedChanged(object sender, EventArgs e)
         {
             fieldSize = 3;
@@ -115,5 +112,12 @@ namespace SquaresGame.View
         {
             fieldSize = 9;
         }
+        #endregion
+
+        #region Event Senders
+        //======= Event senders =======//
+        protected virtual void OnPlayersCreated(object sender, Player[] players) 
+            => PlayerCreated?.Invoke(this, new Tuple<Player[], int>(players,fieldSize));
+        #endregion
     }
 }

@@ -1,0 +1,39 @@
+@startuml
+top to bottom direction
+
+actor Játékos as Player
+usecase (Új játék) as NewGame
+usecase (Játék mentése) as SaveGame
+usecase (Játék betöltése) as LoadGame
+usecase (Kilépés) as Quit
+
+usecase (Játékos adat megadása) as PlayerDataInput
+usecase (Játékosnév megadása) as PlayerNameInput
+usecase (Játékos szín megadása) as PlayerColorInput
+
+usecase (Fájl tallózása) as Browse
+usecase (Fájl Drag & Drop) as Dragndrop
+
+usecase (Lépés) as Step
+usecase (Játék vége) as GameOver
+
+Player -- NewGame
+Player -- Step
+Player -- SaveGame
+Player -- LoadGame
+Player -Quit
+
+
+NewGame --> "2" PlayerDataInput : <<include>>
+PlayerDataInput --> PlayerNameInput : <<include>>
+PlayerDataInput --> PlayerColorInput : <<include>>
+
+SaveGame --> Browse : <<include>>
+LoadGame --> Browse : <<include>>
+LoadGame --> Dragndrop : <<optional>>
+
+NewGame --> Step : <<precedes>>
+LoadGame --> Step : <<precedes>>
+
+Step --> GameOver : <<invokes>>
+@enduml

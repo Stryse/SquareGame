@@ -1,19 +1,19 @@
 ﻿using SquaresGame.Model;
 using SquaresGame.Persistence;
-using SquaresGame.View;
 using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
-namespace SquaresGame
+namespace SquaresGame.View
 {
     public partial class GameWindow : Form
     {
+        #region Fields
         //=========== Fields ===========//
-        private SquareGameModel model;
-        private SquaresGameDataAccess dataAccess;
+        private SquaresGameModel model;
+        private ISquaresGameDataAccess dataAccess;
 
         //UI related
         private const float dotRadius = 20.0f;
@@ -24,7 +24,9 @@ namespace SquaresGame
         private bool isMouseDown  = false;
         private Dot startClickDot = null;
         private Dot endClickDot   = null;
+        #endregion
 
+        #region Constructors
         //=========== Ctors ===========//
         public GameWindow()
         {
@@ -33,9 +35,11 @@ namespace SquaresGame
                           ControlStyles.AllPaintingInWmPaint | ControlStyles.SupportsTransparentBackColor, 
                           true);
         }
+        #endregion
 
+        #region Methods
         //=========== Methods ===========//
-        void DrawGameField(PaintEventArgs e)
+        private void DrawGameField(PaintEventArgs e)
         {
             //Draw Dots
             foreach (var dot in dots)
@@ -65,7 +69,7 @@ namespace SquaresGame
             }
         }
         
-        void InitDots(int N)
+        private void InitDots(int N)
         {
             dots = new Dot[N,N];
             for (int x = 1; x <= N; ++x)
@@ -79,7 +83,7 @@ namespace SquaresGame
             }
         }
 
-        Dot GetIntersectedDot(MouseEventArgs e)
+        private Dot GetIntersectedDot(MouseEventArgs e)
         {
             const float delta = dotRadius;
             foreach (Dot dot in dots)
@@ -94,14 +98,14 @@ namespace SquaresGame
             return null;
         }
 
-        public async Task LoadGame(String path)
+        private async Task LoadGame(String path)
         {
             try
             {
                 if (model == null)
                 {
                     GameStateWrapper state = await dataAccess.LoadGameAsync(path);
-                    model = SquareGameModel.FromSave(state, dataAccess);
+                    model = SquaresGameModel.FromSave(state, dataAccess);
                     NewGame(model);
                 }
                 else
@@ -118,7 +122,9 @@ namespace SquaresGame
                 MessageBox.Show(excp.Message);
             }
         }
+        #endregion
 
+        #region EventHandlers
         //=========== Events ===========//
 
         //===== Model event handlers =====//
@@ -157,7 +163,7 @@ namespace SquaresGame
 
             if(starter.DialogResult == DialogResult.OK)
             {
-                model = new SquareGameModel(fieldSize, players[0], players[1], dataAccess);
+                model = new SquaresGameModel(fieldSize, players[0], players[1], dataAccess);
                 NewGame(model);
             }
         }
@@ -186,7 +192,7 @@ namespace SquaresGame
             }
         }
 
-        private void NewGame(SquareGameModel model)
+        private void NewGame(SquaresGameModel model)
         {
             //Subscriptions
             model.UpdateUI += UpdateUI;
@@ -269,7 +275,7 @@ namespace SquaresGame
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
         }
-
+        #endregion
 
         protected override CreateParams CreateParams // Form level double buffering
         {

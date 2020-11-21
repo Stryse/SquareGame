@@ -1,8 +1,7 @@
-﻿using SquaresGame.Model;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
-namespace SquaresGame
+namespace SquaresGame.Persistence
 {
     public interface ISquaresGameDataAccess
     {

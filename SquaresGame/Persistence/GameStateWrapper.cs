@@ -1,8 +1,9 @@
-﻿using System;
+﻿using SquaresGame.Model;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace SquaresGame.Model
+namespace SquaresGame.Persistence
 {
     public class GameStateWrapper
     {

@@ -1,0 +1,34 @@
+@startuml
+left to right direction
+
+rectangle Program {
+}
+
+namespace View {
+  class GameWindow
+  class GameStarter
+}
+
+namespace Model { 
+  class SquareGameModel
+}
+
+namespace Persistence {
+  interface ISquaresGameDataAccess
+  class SquaresGameDataAccess
+  class SquaresGameDataException
+  class GameStateWrapper
+
+  SquaresGameDataAccess -[hidden] ISquaresGameDataAccess
+  SquaresGameDataAccess -[hidden] SquaresGameDataException
+  SquaresGameDataAccess -[hidden] GameStateWrapper
+}
+
+
+
+Program --> View : <<import>>
+View --> Model : <<import>>
+View -> Persistence : <<import>>
+Model --> Persistence : <<import>>
+
+@enduml

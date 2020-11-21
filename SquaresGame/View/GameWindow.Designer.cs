@@ -1,4 +1,4 @@
-﻿namespace SquaresGame
+﻿namespace SquaresGame.View
 {
     partial class GameWindow
     {

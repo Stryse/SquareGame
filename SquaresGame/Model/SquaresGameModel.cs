@@ -1,11 +1,11 @@
-﻿using SquaresGame.Model;
+﻿using SquaresGame.Persistence;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SquaresGame
+namespace SquaresGame.Model
 {
     public class Player
     {
@@ -25,7 +25,7 @@ namespace SquaresGame
         }
     }
 
-    public class SquareGameModel { 
+    public class SquaresGameModel { 
 
         #region Fields
         //============= Fields =============//
@@ -59,7 +59,7 @@ namespace SquaresGame
 
         #region Constructors
         //============= CTORS ==============//
-        public SquareGameModel(int fieldSize, Player playerOne, Player playerTwo, ISquaresGameDataAccess dAccess)
+        public SquaresGameModel(int fieldSize, Player playerOne, Player playerTwo, ISquaresGameDataAccess dAccess)
         {
             //Field inits
             FieldSize = (fieldSize > 1) ? fieldSize : throw new ArgumentOutOfRangeException("FieldSize",fieldSize,"value must be > 1");
@@ -76,9 +76,9 @@ namespace SquaresGame
         }
 
         //Static factory
-        public static SquareGameModel FromSave(GameStateWrapper state, ISquaresGameDataAccess dAccess)
+        public static SquaresGameModel FromSave(GameStateWrapper state, ISquaresGameDataAccess dAccess)
         {
-            SquareGameModel instance = new SquareGameModel(state.FieldSize, state.PlayerOne, state.PlayerTwo, dAccess);
+            SquaresGameModel instance = new SquaresGameModel(state.FieldSize, state.PlayerOne, state.PlayerTwo, dAccess);
             instance.ActivePlayer = state.ActivePlayer;
             instance.lines = state.Lines;
             instance.rectangles = state.Rectangles;
