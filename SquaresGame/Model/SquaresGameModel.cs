@@ -97,7 +97,7 @@ namespace SquaresGame.Model
         public void AddNewLine(Tuple<Point, Point> line)
         {
             //Check validity of input line
-            if (IsLine(line) && IsPermittedLine(line) && !lines.Any(p => IsSameLine(p,line)))
+            if (IsInBounds(line) && IsLine(line) && IsPermittedLine(line) && !lines.Any(p => IsSameLine(p,line)))
             {
                 //If adding line produces new rectangle(s) register rectangle(s)
                 UpdateRectangles(line);
@@ -337,6 +337,14 @@ namespace SquaresGame.Model
             int dCol = Math.Abs(line.Item2.Y - line.Item1.Y);
 
             return dRow <= 1 && dCol <= 1 && dRow * dCol != 1;
+        }
+
+        private bool IsInBounds(Tuple<Point, Point> line)
+        {
+            return line.Item1.X >= 0 && line.Item1.X < FieldSize
+              &&   line.Item1.Y >= 0 && line.Item1.Y < FieldSize
+              &&   line.Item2.X >= 0 && line.Item2.X < FieldSize
+              &&   line.Item2.Y >= 0 && line.Item2.Y < FieldSize;
         }
 
         #endregion

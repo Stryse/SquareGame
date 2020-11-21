@@ -41,7 +41,7 @@ class "**View::GameWindow**" as GameWindow <Form>
 -canvas_DragDrop(sender : object, e : DragEventArgs) : void
 }
 
-class "**Dot**" as Dot
+class "**View::Dot**" as Dot
 {
 + row : int
 + col : int
@@ -51,7 +51,7 @@ class "**Dot**" as Dot
 +{static} {explicit} operator Point(d : Dot) : Point
 }
 
-class "**GameStarter**" as GameStarter <Form>
+class "**View::GameStarter**" as GameStarter <Form>
 {
 -fieldSize : int
 -players : Player[]
@@ -76,7 +76,7 @@ class "**GameStarter**" as GameStarter <Form>
 + PlayerCreated() : EventHandler<Tuple<Player[],int>>
 }
 
-class "**Player**" as Player {
+class "**Model::Player**" as Player {
 -playerName : String
 -playerColor : Color
 -points : int
@@ -89,7 +89,7 @@ class "**Player**" as Player {
 +Points() : int
 }
 
-class "**SquaresGameModel**" as SquaresGameModel {
+class "**Model::SquaresGameModel**" as SquaresGameModel {
 -lines : List<Tuple<Point, Point, Player>>
 -linesToEnd : int
 -rectangles : List<Tuple<Point, Point, Player>>
@@ -128,19 +128,19 @@ class "**SquaresGameModel**" as SquaresGameModel {
 #OnEndGame(sender : object, p : Player) : void {virtual}
 }
 
-interface "**ISquaresGameDataAccess**" as ISquaresGameDataAccess{
+interface "**Persistence::ISquaresGameDataAccess**" as ISquaresGameDataAccess{
 +SaveGameAsync(state : GameStateWrapper, path : String) : Task
 +LoadGameAsync(path : String) : Task<GameStateWrapper>
 }
 
-class "**SquaresGameDataAccess**" as SquaresGameDataAccess{
+class "**Persistence::SquaresGameDataAccess**" as SquaresGameDataAccess{
 +SaveGameAsync(state : GameStateWrapper, path : String) : Task
 +LoadGameAsync(path : String) : Task<GameStateWrapper>
 }
 
-class "**SquaresGameDataException**" as excpt
+class "**Persistence::SquaresGameDataException**" as excpt
 
-class "**GameStateWrapper**" as GameStateWrapper
+class "**Persistence::GameStateWrapper**" as GameStateWrapper
 {
 -- <<properties>> --
 +PlayerOne() : Player
